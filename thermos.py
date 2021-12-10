@@ -14,5 +14,9 @@ class User:
 def index():
     return render_template('index.html', title="Title passed from view to template", user=User("Misha", "Martin"))
 
+@app.route('/add')
+def add():
+    return render_template('add.html', user=User("Misha", "Martin"))
+
 if __name__=='__main__':
     app.run(debug=True)
