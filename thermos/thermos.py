@@ -12,6 +12,8 @@ def store_bookmark(url):
         date = datetime.utcnow()
     ))
 
+def new_bookmarks(num):
+    return sorted(bookmarks, key=lambda bm: bm['date'], reverse=True)[:num]
 class User:
     def __init__(self, firstname, lastname):
         self.firstname = firstname
@@ -22,7 +24,7 @@ class User:
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html', title="Title passed from view to template", user=User("Misha", "Martin"))
+    return render_template('index.html', title="Title passed from view to template", user=User("Misha", "Martin"), new_bookmark=new_bookmarks(5))
 
 @app.route('/add', methods=['GET', 'POST'])
 def add():
