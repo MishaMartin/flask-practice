@@ -1,6 +1,8 @@
 from datetime import datetime
 from flask import Flask, render_template, url_for, request, redirect, flash
 
+# from forms import BookmarkForm
+
 app = Flask(__name__)
 
 bookmarks = []
@@ -28,12 +30,14 @@ def index():
 
 @app.route('/add', methods=['GET', 'POST'])
 def add():
-    if request.method == "POST":
-        url = request.form['url']
-        store_bookmark(url)
-        flash("Stored bookmark '{}'".format(url))
+    form = BookmarkForm()
+    if form.validate_on_submit():
+        url = form.url.data
+        description = form.description.data
+        store_bookmark(url, description)
+        flash("Stored '{}'",format(description))
         return redirect(url_for('index'))
-    return render_template('add.html', user=User("Misha", "Martin"))
+    return render_template('add.html',form=form, user=User("Misha", "Martin"))
 
 @app.errorhandler(404)
 def page_not_found(e):
