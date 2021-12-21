@@ -1,12 +1,22 @@
+import os
+
 from datetime import datetime
 from flask import Flask, render_template, url_for, request, redirect, flash
+from flask_sqlalchemy import SQLAlchemy
 
-# from forms import BookmarkForm
+from logging import DEBUG
 
 app = Flask(__name__)
+app.logger.setLevel(DEBUG)
+
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 bookmarks = []
 app.config['SECRET_KEY'] = 'w\x92@\xf9g\xe3\xc5u\xf8\x00\xf6\xc2T\x0e\xc8\xa7\xcc\x92\xbe8\xef\xf5\x80\xef'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'thermos.db')
+db = SQLAlchemy(app)
+
+
 def store_bookmark(url):
     bookmarks.append(dict(
         url = url,
@@ -30,14 +40,12 @@ def index():
 
 @app.route('/add', methods=['GET', 'POST'])
 def add():
-    form = BookmarkForm()
-    if form.validate_on_submit():
-        url = form.url.data
-        description = form.description.data
-        store_bookmark(url, description)
-        flash("Stored '{}'",format(description))
+    if request.method == "POST":
+        url = request.form['url']
+        store_bookmark(url)
+        app.logger.debug('Stored URL: ' + url)
         return redirect(url_for('index'))
-    return render_template('add.html',form=form, user=User("Misha", "Martin"))
+    return render_template('add.html', user=User("Misha", "Martin"))
 
 @app.errorhandler(404)
 def page_not_found(e):
